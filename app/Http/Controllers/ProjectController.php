@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Http\Resources\ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -13,7 +14,17 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $query = Project::query();
+
+        $sortField = request("sort_field", 'created_at');
+        $sortDirection = request("sort_direction", "desc");
+
+         $projects = $query->orderBy($sortField, $sortDirection)
+            ->paginate(10)
+            ->onEachSide(1);
+        return inertia('Projects/Index',[
+            "projects" => ProjectResource::collection($projects),
+        ]);
     }
 
     /**
